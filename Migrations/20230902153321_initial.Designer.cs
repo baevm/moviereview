@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using moviereview.Data;
 
 #nullable disable
 
 namespace moviereview.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230901191201_initial")]
+    [Migration("20230902153321_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -24,7 +25,7 @@ namespace moviereview.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Actor", b =>
+            modelBuilder.Entity("moviereview.Models.Actor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -45,7 +46,7 @@ namespace moviereview.Migrations
                     b.ToTable("Actors");
                 });
 
-            modelBuilder.Entity("Genre", b =>
+            modelBuilder.Entity("moviereview.Models.Genre", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +63,7 @@ namespace moviereview.Migrations
                     b.ToTable("Genres");
                 });
 
-            modelBuilder.Entity("Movie", b =>
+            modelBuilder.Entity("moviereview.Models.Movie", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,15 +74,15 @@ namespace moviereview.Migrations
                     b.Property<int>("Budget")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ShortSummary")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -92,7 +93,7 @@ namespace moviereview.Migrations
                     b.ToTable("Movies");
                 });
 
-            modelBuilder.Entity("MovieActors", b =>
+            modelBuilder.Entity("moviereview.Models.MovieActors", b =>
                 {
                     b.Property<int>("MovieId")
                         .HasColumnType("integer");
@@ -107,7 +108,7 @@ namespace moviereview.Migrations
                     b.ToTable("MovieActors");
                 });
 
-            modelBuilder.Entity("MovieGenres", b =>
+            modelBuilder.Entity("moviereview.Models.MovieGenres", b =>
                 {
                     b.Property<int>("MovieId")
                         .HasColumnType("integer");
@@ -122,7 +123,7 @@ namespace moviereview.Migrations
                     b.ToTable("MovieGenres");
                 });
 
-            modelBuilder.Entity("Review", b =>
+            modelBuilder.Entity("moviereview.Models.Review", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -156,7 +157,7 @@ namespace moviereview.Migrations
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("moviereview.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -177,15 +178,15 @@ namespace moviereview.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("MovieActors", b =>
+            modelBuilder.Entity("moviereview.Models.MovieActors", b =>
                 {
-                    b.HasOne("Actor", "Actor")
+                    b.HasOne("moviereview.Models.Actor", "Actor")
                         .WithMany("MovieActors")
                         .HasForeignKey("ActorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Movie", "Movie")
+                    b.HasOne("moviereview.Models.Movie", "Movie")
                         .WithMany("MovieActors")
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -196,15 +197,15 @@ namespace moviereview.Migrations
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("MovieGenres", b =>
+            modelBuilder.Entity("moviereview.Models.MovieGenres", b =>
                 {
-                    b.HasOne("Genre", "Genre")
+                    b.HasOne("moviereview.Models.Genre", "Genre")
                         .WithMany("MovieGenres")
                         .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Movie", "Movie")
+                    b.HasOne("moviereview.Models.Movie", "Movie")
                         .WithMany("MovieGenres")
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -215,15 +216,15 @@ namespace moviereview.Migrations
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("Review", b =>
+            modelBuilder.Entity("moviereview.Models.Review", b =>
                 {
-                    b.HasOne("Movie", "Movie")
+                    b.HasOne("moviereview.Models.Movie", "Movie")
                         .WithMany("Reviews")
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("User", "User")
+                    b.HasOne("moviereview.Models.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -234,17 +235,17 @@ namespace moviereview.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Actor", b =>
+            modelBuilder.Entity("moviereview.Models.Actor", b =>
                 {
                     b.Navigation("MovieActors");
                 });
 
-            modelBuilder.Entity("Genre", b =>
+            modelBuilder.Entity("moviereview.Models.Genre", b =>
                 {
                     b.Navigation("MovieGenres");
                 });
 
-            modelBuilder.Entity("Movie", b =>
+            modelBuilder.Entity("moviereview.Models.Movie", b =>
                 {
                     b.Navigation("MovieActors");
 
@@ -253,7 +254,7 @@ namespace moviereview.Migrations
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("moviereview.Models.User", b =>
                 {
                     b.Navigation("Reviews");
                 });

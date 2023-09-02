@@ -1,7 +1,10 @@
-public class MovieGenres
+namespace moviereview.Models
 {
-    public int MovieId { get; set; }
-    public int GenreId { get; set; }
-    public Movie Movie { get; set; }
-    public Genre Genre { get; set; }
+    public class MovieGenres
+    {
+        public int MovieId { get; set; }
+        public int GenreId { get; set; }
+        public Movie Movie { get; set; }
+        public Genre Genre { get; set; }
+    }
 }
