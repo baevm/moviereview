@@ -21,7 +21,7 @@ namespace moviereview.Repository
 
         public async Task<bool> DeleteMovie(int id)
         {
-            var movie = await context.Movies.Where(p => p.Id == id).FirstOrDefaultAsync();
+            var movie = await GetMovie(id);
 
             if (movie == null)
             {

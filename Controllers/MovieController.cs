@@ -8,7 +8,7 @@ namespace moviereview.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MovieController : Controller
+    public class MovieController : ControllerBase
     {
         private readonly IMovieRepository movieRepository;
         public MovieController(IMovieRepository movieRepository)
@@ -55,6 +55,7 @@ namespace moviereview.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddMovie([FromBody] MovieDto movieDto)
         {
             if (movieDto == null)
