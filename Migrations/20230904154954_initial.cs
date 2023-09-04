@@ -65,7 +65,7 @@ namespace moviereview.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Username = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    HashPassword = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
                     IsActivated = table.Column<bool>(type: "boolean", nullable: false),
                     AvatarURL = table.Column<string>(type: "text", nullable: false)
                 },

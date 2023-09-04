@@ -173,12 +173,12 @@ namespace moviereview.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("HashPassword")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActivated")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()

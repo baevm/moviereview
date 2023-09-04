@@ -12,7 +12,7 @@ using moviereview.Data;
 namespace moviereview.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230903170749_initial")]
+    [Migration("20230904154954_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -176,12 +176,12 @@ namespace moviereview.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("HashPassword")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActivated")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
