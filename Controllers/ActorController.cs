@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using moviereview.Interfaces;
 using moviereview.Models;
 
 namespace moviereview.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/actor")]
     [ApiController]
     public class ActorController : ControllerBase
     {
@@ -36,18 +37,20 @@ namespace moviereview.Controllers
             return Ok(actor);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Actor>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateActor(Actor actor)
         {
-            var isCreated = await actorRepository.CreateActor(actor);
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var isCreated = await actorRepository.CreateActor(actor);
+
 
             if (!isCreated)
             {
@@ -58,14 +61,21 @@ namespace moviereview.Controllers
             return Ok("Successfully created actor");
         }
 
+        [Authorize]
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateActor()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             throw new NotImplementedException();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

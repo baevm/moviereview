@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using moviereview.Interfaces;
 using moviereview.Models;
 
 namespace moviereview.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/genre")]
     [ApiController]
     public class GenreController : ControllerBase
     {
@@ -20,12 +21,12 @@ namespace moviereview.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetGenre(int id)
         {
-            var genre = await genreRepository.GetGenre(id);
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var genre = await genreRepository.GetGenre(id);
 
             if (genre == null)
             {
@@ -35,18 +36,19 @@ namespace moviereview.Controllers
             return Ok(genre);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateGenre([FromBody] Genre genre)
         {
-            if (genre == null)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!ModelState.IsValid)
+            if (genre == null)
             {
                 return BadRequest(ModelState);
             }
@@ -62,15 +64,21 @@ namespace moviereview.Controllers
             return Ok("Successfully created genre");
         }
 
-
+        [Authorize]
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateGenre()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             throw new NotImplementedException();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

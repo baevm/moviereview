@@ -1,4 +1,6 @@
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using moviereview.Dto;
 using moviereview.Interfaces;
@@ -6,14 +8,17 @@ using moviereview.Models;
 
 namespace moviereview.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/movie")]
     [ApiController]
     public class MovieController : ControllerBase
     {
         private readonly IMovieRepository movieRepository;
-        public MovieController(IMovieRepository movieRepository)
+        private readonly ILogger _logger;
+
+        public MovieController(IMovieRepository movieRepository, ILogger<MovieController> logger)
         {
             this.movieRepository = movieRepository;
+            this._logger = logger;
         }
 
         [HttpGet]
@@ -21,12 +26,12 @@ namespace moviereview.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetMovies()
         {
-            var movies = await movieRepository.GetMovies();
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var movies = await movieRepository.GetMovies();
 
             return Ok(movies);
         }
@@ -37,12 +42,12 @@ namespace moviereview.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMovie(int id)
         {
-            var movie = await movieRepository.GetMovie(id);
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var movie = await movieRepository.GetMovie(id);
 
             if (movie == null)
             {
@@ -52,12 +57,22 @@ namespace moviereview.Controllers
             return Ok(movie);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddMovie([FromBody] MovieDto movieDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = HttpContext.User.FindFirstValue("id");
+
+            _logger.LogInformation(userId);
+
             if (movieDto == null)
             {
                 return BadRequest(ModelState);
@@ -67,11 +82,6 @@ namespace moviereview.Controllers
             {
                 ModelState.AddModelError("", "Movie Exists");
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             var movie = new Movie()
@@ -94,14 +104,21 @@ namespace moviereview.Controllers
         }
 
 
+        [Authorize]
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateMovie([FromBody] MovieDto movieDto, int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             throw new NotImplementedException();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -34,8 +34,7 @@ namespace moviereview.Repository
             {
                 return false;
             }
-
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            string passwordHash = HashPassword(userDto.Password);
 
             var user = new User
             {
@@ -51,6 +50,7 @@ namespace moviereview.Repository
 
             return true;
         }
+
 
         public async Task<User> GetUser(int id)
         {
@@ -80,28 +80,38 @@ namespace moviereview.Repository
 
         public string GenerateToken(User user, LoginUserDto loginUserDto)
         {
-            if (!BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.PasswordHash))
+            if (!VerifyPassword(user.PasswordHash, loginUserDto.Password))
             {
                 return "";
             }
 
-
-            List<Claim> claims = new List<Claim>{
-                new Claim(ClaimTypes.Name, user.Username)
+            var claims = new List<Claim>{
+                new ("username", user.Username),
+                new ("id", user.Id.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:JWTSecret").Value!));
+            var TokenLifetime = TimeSpan.FromDays(7);
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JWT:Secret").Value!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddDays(7),
+                expires: DateTime.UtcNow.Add(TokenLifetime),
                 signingCredentials: creds
             );
 
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
 
-            return jwt;
+        public bool VerifyPassword(string HashPassword, string password)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, HashPassword);
+        }
+
+        public string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
     }
 }
