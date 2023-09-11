@@ -12,4 +12,10 @@ namespace moviereview.Dto
         public required string Username { get; set; }
         public required string Password { get; set; }
     }
+
+    public class TokensDto
+    {
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+    }
 }

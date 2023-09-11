@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using moviereview.Data;
@@ -78,19 +79,35 @@ namespace moviereview.Repository
             throw new NotImplementedException();
         }
 
-        public string GenerateToken(User user, LoginUserDto loginUserDto)
+        public string GenerateAccessToken(User user)
         {
-            if (!VerifyPassword(user.PasswordHash, loginUserDto.Password))
-            {
-                return "";
-            }
-
             var claims = new List<Claim>{
                 new ("username", user.Username),
                 new ("id", user.Id.ToString())
             };
 
-            var TokenLifetime = TimeSpan.FromDays(7);
+            var TokenLifetime = TimeSpan.FromHours(2);
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JWT:Secret").Value!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.UtcNow.Add(TokenLifetime),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string GenerateRefreshToken(User user)
+        {
+            var claims = new List<Claim>{
+                new ("username", user.Username),
+                new ("id", user.Id.ToString())
+            };
+
+            var TokenLifetime = TimeSpan.FromDays(14);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JWT:Secret").Value!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
@@ -112,6 +129,31 @@ namespace moviereview.Repository
         public string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public bool ValidateToken(string refreshToken)
+        {
+            JwtSecurityTokenHandler tokenHandler = new();
+
+            TokenValidationParameters validationParams = new TokenValidationParameters
+            {
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JWT:Secret").Value!)),
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ClockSkew = TimeSpan.Zero,
+            };
+
+            try
+            {
+                tokenHandler.ValidateToken(refreshToken, validationParams, out SecurityToken validatedToken);
+                return true;
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
         }
     }
 }

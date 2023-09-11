@@ -71,8 +71,6 @@ namespace moviereview.Controllers
 
             var userId = HttpContext.User.FindFirstValue("id");
 
-            _logger.LogInformation(userId);
-
             if (movieDto == null)
             {
                 return BadRequest(ModelState);

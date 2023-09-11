@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using moviereview.Dto;
@@ -52,37 +53,73 @@ namespace moviereview.Controllers
                 return BadRequest("Username or password is incorrect");
             }
 
-            var token = userRepository.GenerateToken(user, loginUserDto);
+            if (!userRepository.VerifyPassword(user.PasswordHash, loginUserDto.Password))
+            {
+                return Unauthorized();
+            }
 
-            if (token.Length == 0)
+            try
+            {
+                var accessToken = userRepository.GenerateAccessToken(user);
+                var refreshToken = userRepository.GenerateRefreshToken(user);
+
+                return Ok(new TokensDto
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken
+                });
+            }
+            catch (Exception)
             {
                 return BadRequest("Username or password is incorrect");
             }
-
-            return Ok(token);
         }
 
-        // [Authorize]
-        // [HttpPost("refresh")]
-        // [ProducesResponseType(StatusCodes.Status200OK)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // public async Task<IActionResult> Refresh()
-        // {
-        //     var user = await userRepository.GetUser();
+        [Authorize]
+        [HttpPost("refresh")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Refresh()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //     if (user == null)
-        //     {
-        //         return BadRequest("Username or password is incorrect");
-        //     }
+            var isValidToken = userRepository.ValidateToken(Request.Headers["CHANGE_THIS_TO_REFRESH"]);
 
-        //     var token = userRepository.GenerateToken(user, refreshTokenDto);
+            if (!isValidToken)
+            {
+                return Unauthorized();
+            }
 
-        //     if (token.Length == 0)
-        //     {
-        //         return BadRequest("Username or password is incorrect");
-        //     }
+            var userId = HttpContext.User.FindFirstValue("id");
 
-        //     return Ok(token);
-        // }
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await userRepository.GetUser(userId);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var accessToken = userRepository.GenerateAccessToken(user);
+
+                return Ok(new TokensDto
+                {
+                    AccessToken = accessToken
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

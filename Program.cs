@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(x =>
         ValidateLifetime = true,
         ValidateAudience = false,
         ValidateIssuer = false,
+        ClockSkew = TimeSpan.Zero,
     };
 });
 builder.Services.AddAuthorization();

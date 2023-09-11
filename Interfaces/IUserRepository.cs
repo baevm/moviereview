@@ -10,7 +10,10 @@ namespace moviereview.Interfaces
         Task<User> GetUserByEmail(string email);
         Task<bool> CreateUser(CreateUserDto userDto);
         Task<User> UpdateUser(User user, string password);
-        public string GenerateToken(User user, LoginUserDto loginUserDto);
+        public string GenerateAccessToken(User user);
+        public string GenerateRefreshToken(User user);
+        public bool ValidateToken(string refreshToken);
+        public bool VerifyPassword(string HashPassword, string password);
         Task<bool> Save();
     }
 }
